@@ -1,0 +1,63 @@
+#!/bin/bash
+# vim: shiftwidth=3 tabstop=3 expandtab 
+
+PATH_TO_DOCKER_CONTAINERS=/home/proxygin/work/docker
+INDENT="|--"
+
+#undfold_layer () {
+#  # Indent lvl = INDENT
+#  INDENT="  ${INDENT}
+#  echo "$INDENT 
+#
+
+
+pretty_print ()
+{
+   while read -r line; do
+      ident="\`--"
+      ident_lvl=$(echo -n "$line" | tr "/" "\n" | wc -l)
+      for i in `seq $ident_lvl`; do
+         ident="   $ident"
+      #   echo "ident=$ident"
+      done
+      #echo "ident_lvl=$ident_lvl"
+      #echo "$line"
+      echo "$ident$(basename $line)"
+   done <<< "$1"
+}
+pretty_print2 ()
+{
+   echo "$1"
+   working_data=$(echo "$1" | tac -s'
+')
+   echo "===="
+   echo "$working_data"
+
+   while read -e -r line; do
+      echo "$line"
+   done <<< "$working_data"
+}
+
+container_list=$(find "$PATH_TO_DOCKER_CONTAINERS" -name "*run.sh" -printf "%p\n")
+
+#echo -n "$container_list"
+
+echo "Found $(echo "$container_list" | wc -l) container definitions"
+echo "$container_list"
+
+pp_output=""
+while read -r line; do
+   line=$(echo "$line" | sed 's|/run.sh$||')
+   while grep -q \/ <<< $line ; do
+      pp_output="${pp_output}$line
+"
+      line=$(echo $line | rev | cut -d\/ -f2- | rev)
+   done
+done <<< "$container_list"
+
+pp_output=$(echo -n "$pp_output" | sort | uniq)
+
+#$(echo "testtesttest" | grep -aob t | tail -n 1 | cut -d: -f1)
+
+output=$(pretty_print "$pp_output")
+pretty_print2 "$output"

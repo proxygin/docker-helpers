@@ -1,0 +1,65 @@
+#!/bin/bash
+# vim: shiftwidth=3 tabstop=3 expandtab 
+
+function enter ()
+{
+   docker exec -it $1 /bin/bash
+}
+function ps ()
+{
+   exit 1
+}
+function logs ()
+{
+   docker exec -it $1 /bin/bash
+}
+function stop () {
+exit 1
+}
+function exec () {
+exit 1
+}
+function restart () {
+exit 1
+}
+
+# Last parameter, and the number of parameters must be greather then 1
+# Must not start with - or --
+
+if [[ "z$2" -ne "z" ]]; then
+   container="$2"
+else
+   container="$(pwd | rev | cut -d\/ -f1 | rev)"
+fi
+
+case $1 in
+   "enter")
+      enter $container
+      ;;
+   "logs")
+      docker $1 -f=true $2 $container
+      ;;
+   "ps")
+      docker ps --size=true --filter "name=$container"
+      ;;
+   "run")
+      if [ -f run.sh ]; then
+         ./run.sh
+      else
+         echo "Missing run.sh"
+         exit 1
+      fi
+      ;;
+   "stop")
+      ;;
+   "build")
+      if [ -f build.sh ]; then
+         ./build.sh
+      else
+         echo "Missing build.sh"
+         exit 1
+      fi
+      ;;
+   *)
+      ;;
+esac

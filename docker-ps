@@ -1,0 +1,19 @@
+#!/bin/bash
+# vim: shiftwidth=3 tabstop=3 expandtab 
+
+# 1. container name is supplied, use it as search term
+# 2. no container name is supplied, use the folder name as searchterm
+
+if [[ -z $1 ]]; then
+   container_search="$(pwd | rev | cut -d\/ -f1 | rev)"
+else
+   container_search="$1"
+fi
+
+if ! `docker ps -a --filter="name=$container_search" | tail -n +2 | grep -q "$container_search"`; then
+   echo "No container matches '$container_search', use \`docker ps -a\` for more information"
+   exit 1
+fi
+
+
+docker ps -a --size=true --filter="name=$container_search" 

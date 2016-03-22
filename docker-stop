@@ -1,0 +1,9 @@
+#!/bin/bash
+# vim: shiftwidth=3 tabstop=3 expandtab 
+
+if [[ ! -f run.sh ]]; then
+   echo "Please define 'stop.sh' script"
+   exit 1
+fi
+
+./stop.sh

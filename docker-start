@@ -1,0 +1,28 @@
+#!/bin/bash
+# vim: shiftwidth=3 tabstop=3 expandtab 
+
+container="$(pwd | rev | cut -d\/ -f1 | rev)"
+
+cur_running=`docker ps --filter="name=$container"`
+
+if grep -q "$container" <<< "$cur_running"; then 
+   echo -n "$cur_running"
+	echo ""
+	echo ""
+   echo "All running containers maching '$container'"
+	echo "Are you sure you want to run '$container/run.sh'?"
+	read -n 1 continue
+
+	# Check for confirmation
+	if [ ! "$continue" == "y" ]; then
+		echo "Aborted!"
+		exit 1
+	fi
+fi
+
+if [[ ! -f run.sh ]]; then
+   echo "Please define 'run.sh' script"
+   exit 1
+fi
+
+./run.sh

@@ -1,0 +1,31 @@
+#!/bin/bash
+# vim: shiftwidth=3 tabstop=3 expandtab 
+
+# Last parameter, and the number of parameters must be greather then 1
+# Must not start with - or --
+
+if [[ -z $1 ]]; then
+   container_search="$(pwd | rev | cut -d\/ -f1 | rev)"
+else
+   container_search="$1"
+fi
+
+# Note the use of gnu-tail
+container_match=$(docker ps --filter="name=$container_search" | tail -n +2)
+
+# If no running containers present, include the stopped ones
+if (( 1 > `echo -n "$container_match" | grep $container_search -c` )); then
+   container_match=$(docker ps -a --filter="name=$container_search" | tail -n +2)
+fi
+
+if (( 1 > `echo -n "$container_match" | grep $container_search -c` )); then
+   echo "No container matching '$container_search'. Check \`docker ps -a\` for more information"
+   exit 1
+elif (( 1 < `echo -n "$container_match" | grep $container_search -c` )); then
+   echo "Multiple container maching '$container_search':"
+   docker ps --filter="name=$container_search"
+   exit 1
+fi
+
+container_match=$(echo "$container_match" | awk '{print $NF}')
+docker inspect --format '{{ .State.Pid }}' "$container_match" 
